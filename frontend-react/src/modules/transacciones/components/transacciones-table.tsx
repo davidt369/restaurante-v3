@@ -1,0 +1,339 @@
+import { useState } from "react";
+import { Edit, Trash2, CreditCard, CheckCircle2, Clock, ChefHat, AlertCircle, Eye } from "lucide-react";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Transaccion } from "../types/transaccion.types";
+import { formatDate, formatTime } from "@/utils/date-format";
+
+type TransaccionesTableProps = {
+    transacciones: Transaccion[];
+    isLoading?: boolean;
+    onView: (transaccion: Transaccion) => void;
+    onEdit?: (transaccion: Transaccion) => void;
+    onDelete?: (id: number) => void;
+    onPay?: (transaccion: Transaccion) => void;
+    readOnly?: boolean;
+};
+
+const getEstadoBadge = (estado: string) => {
+    switch (estado) {
+        case "pendiente":
+            return (
+                <Badge variant="secondary" className="gap-1">
+                    <Clock className="h-3 w-3" />
+                    Pendiente
+                </Badge>
+            );
+        case "abierto":
+            return (
+                <Badge variant="secondary" className="gap-1 bg-info text-info-foreground border-info">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Abierto
+                </Badge>
+            );
+        case "cerrado":
+            return (
+                <Badge variant="outline" className="gap-1 text-success border-success">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Cerrado
+                </Badge>
+            );
+        case "eliminado":
+            return (
+                <Badge variant="destructive" className="gap-1">
+                    <Trash2 className="h-3 w-3" />
+                    Eliminado
+                </Badge>
+            );
+        default:
+            return <Badge variant="secondary">{estado}</Badge>;
+    }
+};
+
+const getPendientesBadges = (montoPendiente: string, estadoCocina?: string) => {
+    const pendientePago = parseFloat(montoPendiente) > 0;
+    const pendienteCocina = estadoCocina === 'pendiente';
+
+    if (!pendientePago && !pendienteCocina) {
+        return (
+            <div className="flex items-center gap-1">
+                <Badge variant="outline" className="gap-1 text-success border-success">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Completo
+                </Badge>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col gap-1">
+            {pendienteCocina && (
+                <Badge variant="destructive" className="gap-1 text-xs">
+                    <ChefHat className="h-3 w-3" />
+                    Falta terminar en cocina
+                </Badge>
+            )}
+            {pendientePago && (
+                <Badge variant="destructive" className="gap-1 text-xs">
+                    <AlertCircle className="h-3 w-3" />
+                    Falta pagar
+                </Badge>
+            )}
+        </div>
+    );
+};
+
+export function TransaccionesTable({
+    transacciones,
+    isLoading = false,
+    onView,
+    onEdit,
+    onDelete,
+    onPay,
+    readOnly = false,
+}: TransaccionesTableProps) {
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [transaccionToDelete, setTransaccionToDelete] = useState<Transaccion | null>(null);
+
+    if (isLoading) {
+        return (
+            <div className="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-20">Nro.</TableHead>
+                            <TableHead className="w-25">Fecha</TableHead>
+                            <TableHead className="w-20">Hora</TableHead>
+                            <TableHead>Cliente</TableHead>
+                            <TableHead>Mesa</TableHead>
+                            <TableHead className="text-right">Total</TableHead>
+                            <TableHead className="text-right">Pendiente</TableHead>
+                            <TableHead>Estado</TableHead>
+                            <TableHead>Pendientes</TableHead>
+                            <TableHead className="text-right w-62.5">Acciones</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {[...Array(5)].map((_, i) => (
+                            <TableRow key={i}>
+                                <TableCell><Skeleton className="h-4 w-[50px]" /></TableCell>
+                                <TableCell><Skeleton className="h-4 w-[90px]" /></TableCell>
+                                <TableCell><Skeleton className="h-4 w-[50px]" /></TableCell>
+                                <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+                                <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+                                <TableCell><Skeleton className="h-4 w-[80px] ml-auto" /></TableCell>
+                                <TableCell><Skeleton className="h-4 w-[80px] ml-auto" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-[80px]" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-[90px]" /></TableCell>
+                                <TableCell className="text-right">
+                                    <Skeleton className="h-8 w-[120px] ml-auto" />
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        );
+    }
+
+    const handleDeleteClick = (transaccion: Transaccion) => {
+        setTransaccionToDelete(transaccion);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (transaccionToDelete && onDelete) {
+            onDelete(transaccionToDelete.id);
+            setDeleteDialogOpen(false);
+            setTransaccionToDelete(null);
+        }
+    };
+
+    return (
+        <>
+            <div className="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-20">Nro.</TableHead>
+                            <TableHead className="w-25">Fecha</TableHead>
+                            <TableHead className="w-20">Hora</TableHead>
+                            <TableHead>Cliente</TableHead>
+                            <TableHead>Mesa</TableHead>
+                            <TableHead className="text-right">Total</TableHead>
+                            <TableHead className="text-right">Pendiente</TableHead>
+                            <TableHead>Estado</TableHead>
+                            <TableHead>Pendientes</TableHead>
+                            <TableHead className="text-right w-62.5">Acciones</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {transacciones.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                                    No hay ventas registradas
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            transacciones.map((transaccion) => {
+                                const montoPendiente = parseFloat(transaccion.monto_pendiente);
+                                const isPagado = !isNaN(montoPendiente) && montoPendiente === 0;
+                                const isCerrado = transaccion.estado === "cerrado";
+                                const isEliminado = !!transaccion.borrado_en;
+
+                                return (
+                                    <TableRow 
+                                        key={transaccion.id}
+                                        className={cn(isEliminado && "opacity-60 bg-destructive/5")}
+                                    >
+                                        <TableCell className={cn("font-medium", isEliminado && "line-through")}>
+                                            #{transaccion.nro_reg}
+                                        </TableCell>
+                                        <TableCell>
+                                            {formatDate(transaccion.fecha)}
+                                        </TableCell>
+                                        <TableCell>
+                                            {formatTime(transaccion.hora)}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="space-y-1">
+                                                {/* {transaccion.mesa && (
+                                                    <div className="font-medium">{transaccion.concepto}</div>
+                                                )} */}
+                                                {transaccion.cliente && (
+                                                    <div className="text-sm text-muted-foreground">
+                                                        {transaccion.cliente}
+                                                    </div>
+                                                )}
+                                                {!transaccion.mesa && !transaccion.cliente && (
+                                                    <span className="text-muted-foreground">-</span>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>{transaccion.concepto}</TableCell>
+                                        <TableCell className="text-right font-medium">
+                                            Bs {parseFloat(transaccion.monto_total).toFixed(2)}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            {isNaN(montoPendiente) ? (
+                                                <span className="text-destructive">Error</span>
+                                            ) : (
+                                                <span className={montoPendiente > 0 ? "text-warning font-medium" : "text-success"}>
+                                                    Bs {montoPendiente.toFixed(2)}
+                                                </span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {isEliminado ? getEstadoBadge("eliminado") : getEstadoBadge(transaccion.estado)}
+                                        </TableCell>
+                                        <TableCell>
+                                            {getPendientesBadges(transaccion.monto_pendiente, transaccion.estado_cocina)}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => onView(transaccion)}
+                                                    title="Ver detalles"
+                                                >
+                                                    <Eye className="h-4 w-4" />
+                                                </Button>
+
+                                                {!readOnly && !isEliminado && (
+                                                    <>
+                                                        {!isPagado && !isCerrado && onPay && (
+                                                            <Button
+                                                                variant="default"
+                                                                size="sm"
+                                                                onClick={() => onPay(transaccion)}
+                                                                className="bg-success hover:bg-success/90 text-success-foreground"
+                                                                title="Procesar pago"
+                                                            >
+                                                                <CreditCard className="h-4 w-4 mr-1" />
+                                                                Pagar
+                                                            </Button>
+                                                        )}
+
+                                                        {!isCerrado && onEdit && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => onEdit(transaccion)}
+                                                                title="Editar venta"
+                                                            >
+                                                                <Edit className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+
+                                                        {!isCerrado && onDelete && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleDeleteClick(transaccion)}
+                                                                className="text-destructive hover:text-destructive"
+                                                                title="Eliminar venta"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Eliminar venta?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta acción no se puede deshacer. Se eliminará permanentemente la venta{" "}
+                            <span className="font-semibold">#{transaccionToDelete?.nro_reg}</span>
+                            {transaccionToDelete?.cliente && (
+                                <> de <span className="font-semibold">{transaccionToDelete.cliente}</span></>
+                            )}
+                            .
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmDelete}
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                        >
+                            Eliminar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
+    );
+}

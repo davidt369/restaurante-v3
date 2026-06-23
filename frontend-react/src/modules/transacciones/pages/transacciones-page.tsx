@@ -1,0 +1,195 @@
+import { useNavigate } from "react-router-dom";
+import { Plus, History } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import DashboardLayout from "@/layouts/dashboard-layout";
+import { TransaccionesTable } from "../components/transacciones-table";
+import { UnifiedTransactionView } from "../components/unified-transaction-view";
+import { PaymentDialog } from "../components/payment-dialog";
+import { OrderDetailsDialog } from "../components/order-details-dialog";
+import { AddItemDialog } from "../components/add-item-dialog";
+import { ManageExtrasDialog } from "../components/manage-extras-dialog";
+import { useTransaccionesPage } from "../hooks/use-transacciones-page";
+import { TransaccionesStatsTabs } from "../components/transacciones-stats-tabs";
+import { CocinaTabContent } from "../components/cocina-tab-content";
+
+export function TransaccionesPage() {
+    const navigate = useNavigate();
+    const {
+        // State
+        loading,
+        pedidosCocina,
+        loadingCocina,
+        cajaAbiertaId,
+        pagos,
+        activeTab,
+        setActiveTab,
+        processingId,
+
+        // Dialogs
+        unifiedViewOpen, setUnifiedViewOpen,
+        paymentDialogOpen, setPaymentDialogOpen,
+        orderDetailsOpen, setOrderDetailsOpen,
+        addItemDialogOpen, setAddItemDialogOpen,
+        extrasDialogOpen, setExtrasDialogOpen,
+
+        // Selection
+        payingTransaccion,
+        viewingTransaccion,
+        currentItemForExtras,
+        itemExtras,
+
+        // Actions
+        fetchTransacciones,
+        handleCreate,
+        handleView,
+        handleEdit,
+        handleDelete,
+        handleUnifiedSubmit,
+        handlePay,
+        handlePaymentSubmit,
+        handleAddItemSubmit,
+        handleManageExtras,
+        handleAddExtra,
+        handleRemoveExtra,
+        handlePayFromDetails,
+        handleCompletarOrden,
+
+        // Helpers
+        nextNroReg,
+        filteredTransacciones,
+        counts,
+    } = useTransaccionesPage();
+
+    return (
+        <DashboardLayout>
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <div className="space-y-1 sm:space-y-2">
+                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Ventas (POS)</h2>
+                        <p className="text-muted-foreground text-sm sm:text-base">
+                            Sistema de punto de venta - Gestiona pedidos, items y pagos.
+                        </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <Button variant="outline" onClick={() => navigate("/ventas/historial")} className="w-full sm:w-auto">
+                            <History className="mr-2 h-4 w-4" /> Historial
+                        </Button>
+                        <Button onClick={handleCreate} disabled={!cajaAbiertaId} className="w-full sm:w-auto">
+                            <Plus className="mr-2 h-4 w-4" /> Nueva Venta
+                        </Button>
+                    </div>
+                </div>
+
+                {!cajaAbiertaId && !loading && (
+                    <div className="bg-warning-bg border-l-4 border-secondary-border p-4 mb-4 text-secondary-foreground border rounded">
+                        <div className="flex">
+                            <div className="ml-3">
+                                <p className="text-sm">
+                                    No hay una caja abierta. Debe abrir una caja para registrar nuevas ventas.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Listado de Ventas</CardTitle>
+                        <CardDescription>
+                            Pedidos y órdenes del restaurante organizados por estado.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+
+                            <TransaccionesStatsTabs counts={counts} />
+
+                            {["pendiente", "abierto", "cerrado"].map((tab) => (
+                                <TabsContent key={tab} value={tab} className="mt-6">
+                                    <TransaccionesTable
+                                        transacciones={filteredTransacciones(tab)}
+                                        isLoading={loading}
+                                        onView={handleView}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                        onPay={handlePay}
+                                    />
+                                </TabsContent>
+                            ))}
+
+                            <TabsContent value="cocina" className="mt-6">
+                                <CocinaTabContent
+                                    pedidos={pedidosCocina}
+                                    loading={loadingCocina}
+                                    processingId={processingId}
+                                    onCompletar={handleCompletarOrden}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="todos" className="mt-6">
+                                <TransaccionesTable
+                                    transacciones={filteredTransacciones("todos")}
+                                    isLoading={loading}
+                                    onView={handleView}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                    onPay={handlePay}
+                                />
+                            </TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+
+                {/* Dialogs */}
+                <UnifiedTransactionView
+                    open={unifiedViewOpen}
+                    onOpenChange={setUnifiedViewOpen}
+                    onSubmit={handleUnifiedSubmit}
+                    nextNroReg={nextNroReg}
+                />
+
+                <OrderDetailsDialog
+                    open={orderDetailsOpen}
+                    onOpenChange={setOrderDetailsOpen}
+                    transaccion={viewingTransaccion}
+                    onUpdate={fetchTransacciones}
+                    onAddItem={() => setAddItemDialogOpen(true)} // Pass the setter or handler
+                    onPay={handlePayFromDetails}
+                    onManageExtras={handleManageExtras}
+                />
+
+                <AddItemDialog
+                    open={addItemDialogOpen}
+                    onOpenChange={setAddItemDialogOpen}
+                    onSubmit={handleAddItemSubmit}
+                />
+
+                <ManageExtrasDialog
+                    open={extrasDialogOpen}
+                    onOpenChange={setExtrasDialogOpen}
+                    itemId={currentItemForExtras?.id || null}
+                    itemName={currentItemForExtras?.name || ""}
+                    extras={itemExtras}
+                    onAddExtra={handleAddExtra}
+                    onRemoveExtra={handleRemoveExtra}
+                />
+
+                <PaymentDialog
+                    open={paymentDialogOpen}
+                    onOpenChange={setPaymentDialogOpen}
+                    transaccion={payingTransaccion}
+                    pagos={pagos}
+                    onSubmit={handlePaymentSubmit}
+                />
+            </div>
+        </DashboardLayout>
+    );
+}
