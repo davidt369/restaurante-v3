@@ -27,8 +27,11 @@ import {
   KeyRound,
   ScrollText,
   AlertCircle,
+  Sun,
+  Moon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useTheme } from "@/components/theme-provider"
 
 // ── Tipos ──────────────────────────────────────────────────────
 interface DocItem {
@@ -283,6 +286,7 @@ export function DocumentacionPage() {
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const { theme, toggleTheme } = useTheme()
 
   const fetchDoc = useCallback(async (doc: DocItem) => {
     setLoading(true)
@@ -356,6 +360,19 @@ export function DocumentacionPage() {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
+            <Button
+              id="tour-nav-theme-toggle"
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
             <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               v1.0
             </span>
