@@ -13,6 +13,7 @@ import { useUsuariosTour } from "@/modules/tours/hooks/useUsuariosTour"
 import { useIngredientesTour } from "@/modules/tours/hooks/useIngredientesTour"
 import { usePlatosTour } from "@/modules/tours/hooks/usePlatosTour"
 import { useVentasTour } from "@/modules/tours/hooks/useVentasTour"
+import { useHistorialTour } from "@/modules/tours/hooks/useHistorialTour"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,6 +50,7 @@ export default function AppHeader() {
   const { startTour: startIngredientesTour } = useIngredientesTour()
   const { startTour: startPlatosTour } = usePlatosTour()
   const { startTour: startVentasTour } = useVentasTour()
+  const { startTour: startHistorialTour } = useHistorialTour()
 
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -107,7 +109,14 @@ export default function AppHeader() {
             {location.pathname === "/dashboard/platos" && (
               <DropdownMenuItem onClick={startPlatosTour} className="cursor-pointer">
                 <Compass className="mr-2 h-4 w-4" />
-                <span>Gestión de Platos y Recetas</span>
+                <span>Gestión de Platos</span>
+              </DropdownMenuItem>
+            )}
+
+            {location.pathname === "/ventas/historial" && (
+              <DropdownMenuItem onClick={startHistorialTour} className="cursor-pointer">
+                <Compass className="mr-2 h-4 w-4" />
+                <span>Historial de Transacciones</span>
               </DropdownMenuItem>
             )}
 

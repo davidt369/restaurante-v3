@@ -455,6 +455,7 @@ export function HistorialTransaccionesPage() {
                     </div>
                     <div className="flex gap-2">
                         <Button 
+                            id="tour-historial-exportar-todo"
                             variant="outline" 
                             onClick={() => handleExportPDF()}
                             className="gap-2"
@@ -466,7 +467,7 @@ export function HistorialTransaccionesPage() {
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+                <div id="tour-historial-resumen-tarjetas" className="grid gap-4 grid-cols-2 md:grid-cols-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Cajas</CardTitle>
@@ -560,7 +561,7 @@ export function HistorialTransaccionesPage() {
                 </div>
 
                 {/* View Tabs */}
-                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "cajas" | "fecha")} className="w-full">
+                <Tabs id="tour-historial-tabs" value={activeTab} onValueChange={(v) => setActiveTab(v as "cajas" | "fecha")} className="w-full">
                     <TabsList>
                             <TabsTrigger value="cajas" className="gap-2">
                             <FileText className="h-4 w-4" />
@@ -607,6 +608,7 @@ export function HistorialTransaccionesPage() {
                                     <Card key={group.caja.id} className="overflow-hidden">
                                         {/* Caja Header */}
                                         <div 
+                                            id={group.caja.id === groupedByCaja[0]?.caja.id ? "tour-historial-caja-fila" : undefined}
                                             className={cn(
                                                 "p-4 cursor-pointer transition-colors",
                                                 group.caja.cerrada 
@@ -682,6 +684,7 @@ export function HistorialTransaccionesPage() {
                                                     
                                                     <div className="flex items-center gap-2">
                                                         <Button 
+                                                            id={group.caja.id === groupedByCaja[0]?.caja.id ? "tour-historial-caja-exportar" : undefined}
                                                             variant="ghost" 
                                                             size="sm"
                                                             onClick={(e) => {
@@ -707,7 +710,7 @@ export function HistorialTransaccionesPage() {
                                             <CollapsibleContent>
                                                 <div className="p-4 border-t space-y-6">
                                                     {/* Financial Summary */}
-                                                    <div className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
+                                                    <div id={group.caja.id === groupedByCaja[0]?.caja.id ? "tour-historial-caja-finanzas" : undefined} className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
                                                         <div className="bg-muted/30 rounded-lg p-3">
                                                             <div className="text-xs text-muted-foreground mb-1">Monto Inicial</div>
                                                             <div className="font-semibold">Bs {group.resumen.monto_inicial.toFixed(2)}</div>
@@ -742,7 +745,7 @@ export function HistorialTransaccionesPage() {
                                                     <div className="grid gap-6 lg:grid-cols-2">
                                                         {/* Best Sellers */}
                                                         {group.itemsMasVendidos && group.itemsMasVendidos.length > 0 && (
-                                                            <div>
+                                                            <div id={group.caja.id === groupedByCaja[0]?.caja.id ? "tour-historial-caja-platos" : undefined}>
                                                                 <h4 className="font-semibold mb-3 flex items-center gap-2">
                                                                     <Utensils className="h-4 w-4 text-purple-600" />
                                                                     Productos/Platos Más Vendidos
@@ -925,7 +928,7 @@ export function HistorialTransaccionesPage() {
                         ) : (
                             <div className="space-y-4">
                                 {groupedByFecha.map((group) => (
-                                    <Card key={group.date}>
+                                    <Card key={group.date} id={group.date === groupedByFecha[0]?.date ? "tour-historial-fecha-fila" : undefined}>
                                         <CardHeader className="pb-3">
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-2">
@@ -944,6 +947,7 @@ export function HistorialTransaccionesPage() {
                                                         </span>
                                                     </div>
                                                     <Button 
+                                                        id={group.date === groupedByFecha[0]?.date ? "tour-historial-fecha-exportar" : undefined}
                                                         variant="outline" 
                                                         size="sm"
                                                         onClick={() => handleExportDailyPDF(group.date)}
