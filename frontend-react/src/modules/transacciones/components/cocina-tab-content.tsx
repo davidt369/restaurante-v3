@@ -104,7 +104,7 @@ export function CocinaTabContent({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {pedidos.map((pedido) => {
+                    {pedidos.map((pedido, index) => {
                         const minutosTranscurridos = calculateElapsedMinutes(pedido.fecha, pedido.hora);
                         const esTardado = minutosTranscurridos > 20;
 
@@ -180,6 +180,7 @@ export function CocinaTabContent({
                                 </TableCell>
                                 <TableCell className="text-right align-middle">
                                     <Button
+                                        id={index === 0 ? "tour-ventas-cocina-terminar" : undefined}
                                         onClick={() => onCompletar(pedido.id)}
                                         disabled={processingId === pedido.id}
                                         className={cn(

@@ -16,8 +16,21 @@ export function usePlatosTour() {
         { element: '#tour-platos-acciones', popover: { title: '5. Acciones Generales', description: 'Además de gestionar los ingredientes, desde aquí puedes Editar el nombre o el precio del plato, y Eliminarlo si ya no lo venderás más.' } },
       ]
     });
+
+    const activeSteps = driverObj.getConfig().steps?.filter(step => {
+      if (typeof step === 'string') return document.querySelector(step) !== null;
+      return step.element && document.querySelector(step.element as string) !== null;
+    }) || [];
+
+    const dynamicDriver = driver({
+      showProgress: true,
+      nextBtnText: 'Siguiente',
+      prevBtnText: 'Anterior',
+      doneBtnText: 'Entendido',
+      steps: activeSteps
+    });
     
-    driverObj.drive();
+    dynamicDriver.drive();
   }
 
   return { startTour }

@@ -15,8 +15,21 @@ export function useUsuariosTour() {
         { element: '#tour-usuarios-acciones', popover: { title: '4. Acciones Individuales', description: 'En cada fila verás este menú de opciones. Al hacer clic, podrás Editar la información del usuario o Eliminarlo por completo del sistema.' } },
       ]
     });
+
+    const activeSteps = driverObj.getConfig().steps?.filter(step => {
+      if (typeof step === 'string') return document.querySelector(step) !== null;
+      return step.element && document.querySelector(step.element as string) !== null;
+    }) || [];
+
+    const dynamicDriver = driver({
+      showProgress: true,
+      nextBtnText: 'Siguiente',
+      prevBtnText: 'Anterior',
+      doneBtnText: 'Entendido',
+      steps: activeSteps
+    });
     
-    driverObj.drive();
+    dynamicDriver.drive();
   }
 
   return { startTour }

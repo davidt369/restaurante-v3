@@ -195,7 +195,7 @@ export function TransaccionesTable({
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            transacciones.map((transaccion) => {
+                            transacciones.map((transaccion, index) => {
                                 const montoPendiente = parseFloat(transaccion.monto_pendiente);
                                 const isPagado = !isNaN(montoPendiente) && montoPendiente === 0;
                                 const isCerrado = transaccion.estado === "cerrado";
@@ -250,8 +250,9 @@ export function TransaccionesTable({
                                             {getPendientesBadges(transaccion.monto_pendiente, transaccion.estado_cocina)}
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center justify-end gap-2">
+                                            <div id={index === 0 ? "tour-ventas-acciones" : undefined} className="flex items-center justify-end gap-2">
                                                 <Button
+                                                    id={index === 0 ? "tour-ventas-btn-ver" : undefined}
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => onView(transaccion)}
@@ -264,6 +265,7 @@ export function TransaccionesTable({
                                                     <>
                                                         {!isPagado && !isCerrado && onPay && (
                                                             <Button
+                                                                id={index === 0 ? "tour-ventas-btn-pagar" : undefined}
                                                                 variant="default"
                                                                 size="sm"
                                                                 onClick={() => onPay(transaccion)}
@@ -277,6 +279,7 @@ export function TransaccionesTable({
 
                                                         {!isCerrado && onEdit && (
                                                             <Button
+                                                                id={index === 0 ? "tour-ventas-btn-editar" : undefined}
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => onEdit(transaccion)}
@@ -288,6 +291,7 @@ export function TransaccionesTable({
 
                                                         {!isCerrado && onDelete && (
                                                             <Button
+                                                                id={index === 0 ? "tour-ventas-btn-eliminar" : undefined}
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => handleDeleteClick(transaccion)}

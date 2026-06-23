@@ -79,10 +79,10 @@ export function TransaccionesPage() {
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                        <Button variant="outline" onClick={() => navigate("/ventas/historial")} className="w-full sm:w-auto">
+                        <Button id="tour-ventas-historial" variant="outline" onClick={() => navigate("/ventas/historial")} className="w-full sm:w-auto">
                             <History className="mr-2 h-4 w-4" /> Historial
                         </Button>
-                        <Button onClick={handleCreate} disabled={!cajaAbiertaId} className="w-full sm:w-auto">
+                        <Button id="tour-ventas-nueva" onClick={handleCreate} disabled={!cajaAbiertaId} className="w-full sm:w-auto">
                             <Plus className="mr-2 h-4 w-4" /> Nueva Venta
                         </Button>
                     </div>
@@ -100,7 +100,7 @@ export function TransaccionesPage() {
                     </div>
                 )}
 
-                <Card>
+                <Card id="tour-ventas-tabs">
                     <CardHeader>
                         <CardTitle>Listado de Ventas</CardTitle>
                         <CardDescription>

@@ -20,8 +20,21 @@ export function useDashboardTour() {
         { element: '#tour-dashboard-historial', popover: { title: 'Actividad Reciente', description: 'Aquí puedes ver las últimas notas cerradas y el monto de cada venta en tiempo real.' } },
       ]
     });
+
+    const activeSteps = driverObj.getConfig().steps?.filter(step => {
+      if (typeof step === 'string') return document.querySelector(step) !== null;
+      return step.element && document.querySelector(step.element as string) !== null;
+    }) || [];
+
+    const dynamicDriver = driver({
+      showProgress: true,
+      nextBtnText: 'Siguiente',
+      prevBtnText: 'Anterior',
+      doneBtnText: 'Entendido',
+      steps: activeSteps
+    });
     
-    driverObj.drive();
+    dynamicDriver.drive();
   }
 
   return { startTour }

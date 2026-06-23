@@ -12,6 +12,7 @@ import { useCajaDetalleTour } from "@/modules/tours/hooks/useCajaDetalleTour"
 import { useUsuariosTour } from "@/modules/tours/hooks/useUsuariosTour"
 import { useIngredientesTour } from "@/modules/tours/hooks/useIngredientesTour"
 import { usePlatosTour } from "@/modules/tours/hooks/usePlatosTour"
+import { useVentasTour } from "@/modules/tours/hooks/useVentasTour"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,6 +48,7 @@ export default function AppHeader() {
   const { startTour: startUsuariosTour } = useUsuariosTour()
   const { startTour: startIngredientesTour } = useIngredientesTour()
   const { startTour: startPlatosTour } = usePlatosTour()
+  const { startTour: startVentasTour } = useVentasTour()
 
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -73,11 +75,18 @@ export default function AppHeader() {
               <Compass className="mr-2 h-4 w-4" />
               <span>Navegación General</span>
             </DropdownMenuItem>
-            
+
             {location.pathname === "/dashboard" && (
               <DropdownMenuItem onClick={startDashboardTour} className="cursor-pointer">
                 <LayoutDashboard className="mr-2 h-4 w-4" />
-                <span>Métricas del Dashboard</span>
+                <span>Tutorial General (Dashboard)</span>
+              </DropdownMenuItem>
+            )}
+
+            {location.pathname === "/dashboard/ventas" && (
+              <DropdownMenuItem onClick={startVentasTour} className="cursor-pointer">
+                <Compass className="mr-2 h-4 w-4" />
+                <span>Flujo de Ventas (POS)</span>
               </DropdownMenuItem>
             )}
 

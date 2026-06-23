@@ -36,12 +36,17 @@ export function useCajaTour() {
       ];
     }
 
+    const activeSteps = steps.filter(step => {
+      if (typeof step === 'string') return document.querySelector(step) !== null;
+      return step.element && document.querySelector(step.element as string) !== null;
+    });
+
     const driverObj = driver({
       showProgress: true,
       nextBtnText: 'Siguiente',
       prevBtnText: 'Anterior',
       doneBtnText: 'Entendido',
-      steps: steps
+      steps: activeSteps
     });
     
     driverObj.drive();

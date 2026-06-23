@@ -16,8 +16,21 @@ export function useCajaDetalleTour() {
         { element: '#tour-detalle-arqueo', popover: { title: 'Arqueo de Caja', description: 'Detalle exacto de los billetes y monedas contados al momento del cierre. Este monto es el Efectivo Real que tenías físicamente.' } },
       ]
     });
+
+    const activeSteps = driverObj.getConfig().steps?.filter(step => {
+      if (typeof step === 'string') return document.querySelector(step) !== null;
+      return step.element && document.querySelector(step.element as string) !== null;
+    }) || [];
+
+    const dynamicDriver = driver({
+      showProgress: true,
+      nextBtnText: 'Siguiente',
+      prevBtnText: 'Anterior',
+      doneBtnText: 'Entendido',
+      steps: activeSteps
+    });
     
-    driverObj.drive();
+    dynamicDriver.drive();
   }
 
   return { startTour }
