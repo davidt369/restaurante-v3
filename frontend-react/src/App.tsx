@@ -19,6 +19,7 @@ const PlatosPage = lazy(() => import("@/modules/platos").then(m => ({ default: m
 const TransaccionesPage = lazy(() => import("@/modules/transacciones/pages/transacciones-page").then(m => ({ default: m.TransaccionesPage })))
 const HistorialTransaccionesPage = lazy(() => import("@/modules/transacciones/pages/historial-transacciones-page").then(m => ({ default: m.HistorialTransaccionesPage })))
 const CocinaPage = lazy(() => import("@/modules/cocina/pages").then(m => ({ default: m.CocinaPage })))
+const DocumentacionPage = lazy(() => import("@/pages/documentacion-page").then(m => ({ default: m.DocumentacionPage })))
 
 const LoadingScreen = () => (
   <div className="h-screen w-full flex flex-col items-center justify-center bg-background">
@@ -36,6 +37,7 @@ function App() {
             {/* Ruta pública */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/documentacion" element={<DocumentacionPage />} />
 
             {/* Rutas protegidas */}
             <Route
