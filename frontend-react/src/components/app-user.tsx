@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
 import { useAuth } from "@/modules/auth/hooks/useAuth"
-import { User, LogOut } from "lucide-react"
+import { LogOut } from "lucide-react"
 
 export default function AppUser() {
   const { usuario, logout } = useAuth()

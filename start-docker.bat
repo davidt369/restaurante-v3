@@ -1,0 +1,3 @@
+@echo off
+echo Iniciando script de configuracion con permisos requeridos...
+PowerShell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0start-docker.ps1"
